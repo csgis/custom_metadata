@@ -1,11 +1,14 @@
 import json
-from django import forms
+import logging
 import os
+from datetime import date
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
-from typing import Dict, Any, Tuple, List
-from datetime import date
+from typing import Any, Dict, List, Tuple
+
+log = logging.getLogger("django")
 
 # Parse the JSON file
 local_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fields.json')
@@ -94,9 +97,10 @@ class CreateExtraMetadataForm(forms.Form):
                     field.widget = forms.Select()
                 try:
                     self.cleaned_data[field_name] = field.clean(field_value)
-                    #print(f"getting {field_name}")
+                    log.info(f"getting {field_name}")
                 except forms.ValidationError as error:
-                    print(f"{field_name} failed")
+                    log.error(f"{field_name} failed")
+
                     self._errors[field_name] = error.messages
         return not bool(self._errors)
 

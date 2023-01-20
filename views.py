@@ -6,6 +6,9 @@ import json
 from .dynamic_form import CreateExtraMetadataForm
 from datetime import date
 import os
+import logging
+
+log = logging.getLogger("django")
 
 def custom_metadata_decorator(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -25,14 +28,13 @@ def custom_metadata_decorator(view_func):
                     md_to_update = form.cleaned_data
                     form.save(layer, ExtraMetadata)
                 else:
-                    print(form.data)
-                    print(form.errors.items())
                     for field_name, errors in form.errors.items():
                         if errors:
-                            print(f'{field_name} field has errors: {errors}')
+                            log.error(f'{field_name} field has errors: {errors}')
 
                     if form.non_field_errors():
-                        print(form.non_field_errors())
+                        log.error(form.non_field_errors())
+
 
             #return response
             return HttpResponse("ok")
@@ -49,7 +51,7 @@ def custom_metadata_decorator(view_func):
                     if data:
                         custom_metadata.update(data)
             except Exception as e:
-                print(e)
+                log.error(e)
 
             form = CreateExtraMetadataForm(initial=custom_metadata, prefix='gn__emd')
             template = 'custom_metadata/custom_panels.html'
