@@ -1,0 +1,63 @@
+{
+    "fields": [
+        {
+            "type": "NumberField",
+            "name": "age",
+            "label": "Age",
+            "required": false,
+            "widget": "TextInput"
+        },
+        {
+            "type": "CharField",
+            "name": "planet",
+            "label": "Planet",
+            "required": false,
+            "widget": "TextInput"
+        },
+        {
+            "type": "DateField",
+            "name": "tage",
+            "label": "Tage",
+            "required": false,
+            "widget": "DatePicker"
+        },
+        {
+            "type": "RadioSelectField",
+            "name": "my_radio",
+            "label": "My Radio",
+            "required": true,
+            "widget": "RadioSelect",
+            "choices": [
+                {"value":"option1", "label":"Option 1"},
+                {"value":"option2", "label":"Option 2"},
+                {"value":"option3", "label":"Option 3"}
+            ]
+        },
+        {
+            "type": "BooleanField",
+            "name": "is_checked",
+            "label": "Is Checked?",
+            "required": false,
+            "widget": "CheckboxInput"
+        },
+        {
+            "type": "CharField",
+            "name": "color",
+            "label": "Color",
+            "required": false,
+            "widget": "TextInput"
+        },
+        {
+            "type": "ChoiceField",
+            "name": "my_category",
+            "label": "MyCategory",
+            "choices": [
+                {"value":"Food", "label":"Food"},
+                {"value":"Clothing", "label":"Clothing"},
+                {"value":"Electronics", "label":"Electronics"}
+            ],
+            "required": false,
+            "widget": "Select"
+        }
+    ]
+}
