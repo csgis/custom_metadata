@@ -1,14 +1,22 @@
+import json
+import logging
+import os
+from datetime import date
+
 from django.conf import settings
 from django.http import HttpResponse
+
 from geonode.base.models import ExtraMetadata
-from geonode.layers.views import dataset_metadata, dataset_metadata_detail, _resolve_dataset, _PERMISSION_MSG_METADATA
-import json
+from geonode.layers.views import (
+    _PERMISSION_MSG_METADATA,
+    _resolve_dataset,
+    dataset_metadata,
+    dataset_metadata_detail,
+)
 from .dynamic_form import CreateExtraMetadataForm
-from datetime import date
-import os
-import logging
 
 log = logging.getLogger("django")
+
 
 def custom_metadata_decorator(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -18,6 +26,9 @@ def custom_metadata_decorator(view_func):
             'base.change_resourcebase_metadata',
             _PERMISSION_MSG_METADATA
         )
+
+        # The data needs to be saved. We process the POST data and pass
+        # it to the CreateExtraMetadataForm class
         if request.method == 'POST':
             response = view_func(request, *args, **kwargs)
             if response.status_code == 200:
@@ -31,7 +42,6 @@ def custom_metadata_decorator(view_func):
                     for field_name, errors in form.errors.items():
                         if errors:
                             log.error(f'{field_name} field has errors: {errors}')
-
                     if form.non_field_errors():
                         log.error(form.non_field_errors())
 
@@ -40,20 +50,23 @@ def custom_metadata_decorator(view_func):
             return HttpResponse("ok")
         else:
             # Add the extra metadata to the context
-            custom_metadata = {}
+            form_custom_metadata = {}
             try:
                 resources = layer.metadata.all()
                 for resource in resources:
-                    if isinstance(resource.metadata, str):
-                        data = json.loads(resource.metadata)
-                    else:
-                        data = resource.metadata
-                    if data:
-                        custom_metadata.update(data)
+                    obj = resource.metadata
+                    if not isinstance(resource.metadata, dict):
+                        continue
+                    if "name" not in obj or "value" not in obj:
+                        continue
+
+                    data = {obj["name"]: obj["value"]}
+                    form_custom_metadata.update(data)
+                    print(data)
             except Exception as e:
                 log.error(e)
 
-            form = CreateExtraMetadataForm(initial=custom_metadata, prefix='gn__emd')
+            form = CreateExtraMetadataForm(initial=form_custom_metadata, prefix='gn__emd')
             template = 'custom_metadata/custom_panels.html'
             panel_template = getattr(settings, 'PANEL_TEMPLATE', template)
             response = view_func(request,
@@ -64,6 +77,7 @@ def custom_metadata_decorator(view_func):
             return response
 
     return _wrapped_view
+
 
 def custom_metadata_detail_decorator(view_func):
     def decorator_func(request, layername, *args, **kwargs):

@@ -63,6 +63,8 @@ class CreateExtraMetadataForm(forms.Form):
         super().__init__(*args, **kwargs)
         factory = FormFieldFactory()
         self.initial_metadata = kwargs.get('initial')
+        print(self.initial_metadata)
+
         json_file_data = json_data['fields'] if json_data else form_data['fields']
 
         # create form fields for fields that have a json definition
@@ -100,7 +102,6 @@ class CreateExtraMetadataForm(forms.Form):
                     log.info(f"getting {field_name}")
                 except forms.ValidationError as error:
                     log.error(f"{field_name} failed")
-
                     self._errors[field_name] = error.messages
         return not bool(self._errors)
 
@@ -142,6 +143,6 @@ class CreateExtraMetadataForm(forms.Form):
         resources = layer.metadata.all().delete()
         for k in md_to_update.keys():
             k = k.replace("gn__emd-","")
-            json_metadata = {k: self.json_serial(md_to_update[k])}
+            json_metadata = {"name": k, "value": self.json_serial(md_to_update[k])}
             extra_meta = ExtraMetadata.objects.create(resource=layer, metadata=json_metadata)
             layer.metadata.add(extra_meta)
