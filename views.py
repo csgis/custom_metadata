@@ -13,78 +13,113 @@ from geonode.layers.views import (
     dataset_metadata,
     dataset_metadata_detail,
 )
+
+from geonode.maps.views import map_metadata, map_metadata_detail, _resolve_map, _PERMISSION_MSG_VIEW
+
 from .dynamic_form import CreateExtraMetadataForm
+from .get_item_config import get_config_obj
+from .config_reader import read_config_from_json
+from .response_handlers import handle_response
+from .resolve_resource import resolve_resource_type
 
 log = logging.getLogger("django")
 
 
-def custom_metadata_decorator(view_func):
+def handle_generic_metadata_detail(view_func):
+    def decorator_func(request, *args, **kwargs):
+        template = "custom_metadata/custom_dataset_metadata_detail.html"
+        response = view_func(request, *args, template=template, **kwargs)
+        return response
+
+    return decorator_func
+
+
+def handle_generic_metadata_form(view_func):
     def _wrapped_view(request, *args, **kwargs):
-        layer = _resolve_dataset(
-            request,
-            kwargs.get('layername'),
-            'base.change_resourcebase_metadata',
-            _PERMISSION_MSG_METADATA
-        )
+
+        config_obj = get_config_obj(request)
+        resource_type = resolve_resource_type(request, config_obj, kwargs)
 
         # The data needs to be saved. We process the POST data and pass
         # it to the CreateExtraMetadataForm class
-        if request.method == 'POST':
+        if request.method == "POST":
             response = view_func(request, *args, **kwargs)
             if response.status_code == 200:
-                data={k.replace('gn__emd-',''): request.POST[k] for k in request.POST if k.startswith("gn__emd")}
-                form = CreateExtraMetadataForm(initial=data, prefix='gn__emd')
+
+                # prepare the post data an remove the prefix
+                # this should be automaticully done by prefix='gn__emd'?
+                data = {
+                    k.replace("gn__emd-", ""): request.POST[k]
+                    for k in request.POST
+                    if k.startswith("gn__emd")
+                }
+
+                json_file_content = read_config_from_json(config_obj["type"])
+                form = CreateExtraMetadataForm(
+                    json_file_content, initial=data, prefix="gn__emd"
+                )
 
                 if form.is_valid():
-                    md_to_update = form.cleaned_data
-                    form.save(layer, ExtraMetadata)
+                    form.save(resource_type, ExtraMetadata)
                 else:
+                    # Todo: Error reporting should be improved
                     for field_name, errors in form.errors.items():
                         if errors:
-                            log.error(f'{field_name} field has errors: {errors}')
+                            log.error(f"{field_name} field has errors: {errors}")
                     if form.non_field_errors():
                         log.error(form.non_field_errors())
 
-
-            #return response
+            # return response
             return HttpResponse("ok")
-        else:
-            # Add the extra metadata to the context
+        elif request.method == "GET":
+            # Populate the model data and add the extra metadata to the context
             form_custom_metadata = {}
             try:
-                resources = layer.metadata.all()
+                resources = resource_type.metadata.all()
                 for resource in resources:
                     obj = resource.metadata
                     if not isinstance(resource.metadata, dict):
                         continue
                     if "name" not in obj or "value" not in obj:
                         continue
-
+                    # The metadata json is expected to have name and value keys
                     data = {obj["name"]: obj["value"]}
                     form_custom_metadata.update(data)
                     print(data)
             except Exception as e:
                 log.error(e)
 
-            form = CreateExtraMetadataForm(initial=form_custom_metadata, prefix='gn__emd')
-            template = 'custom_metadata/custom_panels.html'
-            panel_template = getattr(settings, 'PANEL_TEMPLATE', template)
-            response = view_func(request,
-                                *args,
-                                panel_template=panel_template,
-                                custom_metadata=form,
-                                **kwargs)
-            return response
+            # Build the form
+            json_file_content = read_config_from_json(config_obj["type"])
+            form = CreateExtraMetadataForm(
+                json_file_content, initial=form_custom_metadata, prefix="gn__emd"
+            )
+            template = config_obj.get("panels_template", None)
+            # Todo: Allow settings override of different template types
+            panel_template = getattr(settings, "PANEL_TEMPLATE", template)
+
+            # return html object
+            return handle_response(
+                request, view_func, config_obj, panel_template, form, *args, **kwargs
+            )
+
+        else:
+            # method not handled by decorator
+            return handle_response(
+                request, view_func, config_obj, panel_template, form, *args, **kwargs
+            )
 
     return _wrapped_view
 
 
-def custom_metadata_detail_decorator(view_func):
-    def decorator_func(request, layername, *args, **kwargs):
-        template = 'custom_metadata/custom_dataset_metadata_detail.html'
-        response = view_func(request, layername, template=template)
-        return response
-    return decorator_func
+# layer
+metadata_dataset_form_view_decorator = handle_generic_metadata_form(dataset_metadata)
+metadata_dataset_detail_view_decorator = handle_generic_metadata_detail(
+    dataset_metadata_detail
+)
 
-decorator_dataset_metadata = custom_metadata_decorator(dataset_metadata)
-decorator_dataset_detail_metadata = custom_metadata_detail_decorator(dataset_metadata_detail)
+# maps
+metadata_map_form_view_decorator = handle_generic_metadata_form(map_metadata)
+metadata_map_detail_view_decorator = handle_generic_metadata_detail(
+    map_metadata_detail
+)
