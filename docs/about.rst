@@ -1,3 +1,7 @@
+.. image:: https://user-images.githubusercontent.com/20478652/214599313-fa50dbb0-480e-474b-a908-8e0462f1a4a2.jpeg
+   :width: 200
+   :scale: 50
+
 
 ⚠️ Attention this application is under development and not released for live operation.
 
@@ -10,7 +14,8 @@ This app extends
   - the metadata detail view of a resource
   - the XML export of a dataset
   
-
+.. image:: https://user-images.githubusercontent.com/20478652/214605375-d7bf3520-ff14-4708-88de-229319b7579c.jpeg
+   :scale: 50
 
 
 
