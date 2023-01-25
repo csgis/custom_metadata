@@ -16,11 +16,10 @@ def read_config_from_json(resource_type: str) -> dict:
             f"metadata_fields/{resource_type}_fields.json",
         )
         fields_file = getattr(settings, "METADATA_MAP_JSON_DEFINITION", local_file)
-        print("using json file: ", fields_file)
         with open(fields_file, "r") as f:
             json_file_content = json.load(f)
             return json_file_content
     except FileNotFoundError:
-        raise os.FileNotFoundError(
+        raise FileNotFoundError(
             f"Could not find the config file for {resource_type}."
         )

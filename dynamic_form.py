@@ -11,15 +11,6 @@ from .get_item_config import get_type_by_first_url_folder
 
 log = logging.getLogger("django")
 
-# Parse the JSON file
-local_file = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "metadata_fields/maps_fields.json"
-)
-fields_file = getattr(settings, "METADATA_JSON_DEFINITION", local_file)
-with open(fields_file, "r") as f:
-    form_data = json.load(f)
-
-
 class FormFieldFactory:
     """
     A factory class for creating dynamic form fields based on a JSON definition.
@@ -166,14 +157,14 @@ class CreateExtraMetadataForm(forms.Form):
         else:
             return obj
 
-    def save(self, layer, ExtraMetadata):
-        print("save")
+    def save(self, resource, ExtraMetadata):
+        print(resource)
         md_to_update = self.cleaned_data
-        resources = layer.metadata.all().delete()
+        resources = resource.metadata.all().delete()
         for k in md_to_update.keys():
             k = k.replace("gn__emd-", "")
             json_metadata = {"name": k, "value": self.json_serial(md_to_update[k])}
             extra_meta = ExtraMetadata.objects.create(
-                resource=layer, metadata=json_metadata
+                resource=resource, metadata=json_metadata
             )
-            layer.metadata.add(extra_meta)
+            resource.metadata.add(extra_meta)

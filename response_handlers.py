@@ -32,6 +32,30 @@ class DatasetHandler(ResponseHandler):
         )
 
 
+class DocumentHandler(ResponseHandler):
+    def handle(
+        self, request, view_func, config_obj, panel_template, form, *args, **kwargs
+    ) -> Any:
+        return view_func(
+            request,
+            *args,
+            panel_template=panel_template,
+            custom_metadata=form,
+            **kwargs
+        )
+
+class AppHandler(ResponseHandler):
+    def handle(
+        self, request, view_func, config_obj, panel_template, form, *args, **kwargs
+    ) -> Any:
+        return view_func(
+            request,
+            *args,
+            panel_template=panel_template,
+            custom_metadata=form,
+            **kwargs
+        )
+
 class DefaultHandler(ResponseHandler):
     def handle(
         self, request, view_func, config_obj, panel_template, form, *args, **kwargs
@@ -50,8 +74,10 @@ def handle_response(
     **kwargs
 ) -> Any:
     handler_mapping: Dict[str, Type[ResponseHandler]] = {
-        'maps': MapHandler,
-        'datasets': DatasetHandler,
+        'map': MapHandler,
+        'dataset': DatasetHandler,
+        'document': DocumentHandler,
+        'app': AppHandler,
     }
     handler_class = handler_mapping.get(config_obj['type'], DefaultHandler)
     return handler_class().handle(

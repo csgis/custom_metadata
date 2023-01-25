@@ -53,7 +53,9 @@ class CreateExtraMetadataFormTests(TestCase):
         }
 
         # create an instance of the form and initialize it
-        form = CreateExtraMetadataForm(json_data=form_data)
+        form = CreateExtraMetadataForm(
+            json_file_content=form_data, initial=None, prefix="gn__emd"
+        )
 
         # check if the form fields are created correctly
         self.assertIn("username", form.fields)

@@ -26,16 +26,16 @@ class GetItemConfig:
     @classmethod
     def is_map(cls) -> dict:
         resource_type_return_obj = {
-            "type": "maps",
-            "panels_template": "custom_metadata/maps_panels.html",
+            "type": "map",
+            "panels_template": "custom_metadata/map_panels.html",
         }
         return resource_type_return_obj
 
     @classmethod
     def is_dataset(cls) -> dict:
         resource_type_return_obj = {
-            "type": "datasets",
-            "panels_template": "custom_metadata/datasets_panels.html",
+            "type": "dataset",
+            "panels_template": "custom_metadata/dataset_panels.html",
         }
         return resource_type_return_obj
 
@@ -43,10 +43,17 @@ class GetItemConfig:
     def is_document(cls) -> dict:
         resource_type_return_obj = {
             "type": "document",
-            "panels_template": "custom_metadata/documents_panels.html",
+            "panels_template": "custom_metadata/document_panels.html",
         }
         return resource_type_return_obj
 
+    @classmethod
+    def is_app(cls) -> dict:
+        resource_type_return_obj = {
+            "type": "app",
+            "panels_template": "custom_metadata/app_panels.html",
+        }
+        return resource_type_return_obj
 
 def get_type_by_first_url_folder(request):
     """
@@ -55,7 +62,7 @@ def get_type_by_first_url_folder(request):
     :return: str
     """
     match = re.search(r"^https?:\/\/[^\/]+(\/[^\/]+).*$", request.get_raw_uri())
-    # maybe raise error instead of fallback
+    # Todo: better raise error instead of fallback
     strategy = match.group(1).split("/")[1] if match else "datasets"
     return strategy
 
@@ -69,7 +76,8 @@ def get_config_obj(request):
     strategies_map = {
         "maps": GetItemConfig.is_map,
         "datasets": GetItemConfig.is_dataset,
-        "document": GetItemConfig.is_document,
+        "documents": GetItemConfig.is_document,
+        "apps": GetItemConfig.is_app,
     }
 
     strategy = get_type_by_first_url_folder(request)

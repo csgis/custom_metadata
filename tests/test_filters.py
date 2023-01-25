@@ -2,7 +2,9 @@ from django.test import TestCase
 from custom_metadata.filters import valid_xml_element
 from unittest import mock, TestCase
 
-# run with DJANGO_SETTINGS_MODULE=geonode.settings pytest -p no:warnings custom_metadata/tests
+# run with
+# DATABASE_URL=postgis://geonode:geonode@localhost:5432/geonode
+# DJANGO_SETTINGS_MODULE=geonode.settings pytest -p no:warnings custom_metadata/tests
 
 
 class FilterTests(TestCase):

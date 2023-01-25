@@ -1,0 +1,18 @@
+{
+    "fields": [
+        {
+            "type": "CharField",
+            "name": "age",
+            "label": "Age",
+            "required": false,
+            "widget": "TextInput"
+        },
+        {
+            "type": "CharField",
+            "name": "planet",
+            "label": "Planet",
+            "required": false,
+            "widget": "TextInput"
+        }
+    ]
+}
