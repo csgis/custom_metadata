@@ -66,15 +66,16 @@ def handle_generic_metadata_form(view_func):
                 if form.is_valid():
                     form.save(resource, ExtraMetadata)
                 else:
-                    # Todo: Error reporting should be improved
                     for field_name, errors in form.errors.items():
                         if errors:
                             log.error(f"{field_name} field has errors: {errors}")
                     if form.non_field_errors():
                         log.error(form.non_field_errors())
+                    # Todo: Error reporting should be improved
+                    return HttpResponse("There was an Eror updating the resource")
 
-            # return response
-            return HttpResponse("ok")
+            return response
+            # return HttpResponse("Resource updated")
         elif request.method == "GET":
             # Populate the model data and add the extra metadata to the context
             form_custom_metadata = {}
