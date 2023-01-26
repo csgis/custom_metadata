@@ -6,6 +6,7 @@ from unittest import mock, TestCase
 # DATABASE_URL=postgis://geonode:geonode@localhost:5432/geonode
 # DJANGO_SETTINGS_MODULE=geonode.settings pytest -p no:warnings custom_metadata/tests
 
+# Todo: Add and improve tests
 
 class FilterTests(TestCase):
     @mock.patch("django.db.utils.ConnectionHandler.__getitem__")

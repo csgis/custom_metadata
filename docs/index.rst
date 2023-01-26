@@ -16,3 +16,5 @@ Index
    installation
    configuration
    development
+   management
+   contribution
