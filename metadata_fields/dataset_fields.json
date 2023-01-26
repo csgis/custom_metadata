@@ -16,45 +16,45 @@
         },
         {
             "type": "DateField",
-            "name": "tage",
-            "label": "Tage",
+            "name": "discovered_Data",
+            "label": "Discovered date",
             "required": false,
             "widget": "DatePicker"
         },
         {
             "type": "RadioSelectField",
-            "name": "my_radio",
-            "label": "My Radio",
+            "name": "size_of_planet",
+            "label": "Size of planet",
             "required": true,
             "widget": "RadioSelect",
             "choices": [
-                {"value":"option1", "label":"Option 1"},
-                {"value":"option2", "label":"Option 2"},
-                {"value":"option3", "label":"Option 3"}
+                {"value":"small", "label":"Small"},
+                {"value":"medium", "label":"Medium"},
+                {"value":"large", "label":"Large"}
             ]
         },
         {
             "type": "BooleanField",
-            "name": "is_checked",
-            "label": "Is Checked?",
+            "name": "is_published",
+            "label": "Is published",
             "required": false,
             "widget": "CheckboxInput"
         },
         {
             "type": "CharField",
-            "name": "color",
-            "label": "Color",
+            "name": "percent_of_water",
+            "label": "Percent of water",
             "required": false,
             "widget": "TextInput"
         },
         {
             "type": "ChoiceField",
-            "name": "my_category",
-            "label": "MyCategory",
+            "name": "relevance",
+            "label": "Relevance of planet",
             "choices": [
                 {"value":"Food", "label":"Food"},
-                {"value":"Clothing", "label":"Clothing"},
-                {"value":"Electronics", "label":"Electronics"}
+                {"value":"Water", "label":"Water"},
+                {"value":"Fun", "label":"fun"}
             ],
             "required": false,
             "widget": "Select"

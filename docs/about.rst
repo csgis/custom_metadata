@@ -11,9 +11,10 @@ What can this app do for you?
 -----------------------------
 
 This app extends 
-  - the metadata wizard with freely definable fields
+  - the metadata wizard with freely definable form fields
   - the metadata detail view of a resource
   - the XML export of a dataset
+  - creates form fields for data added by the REST API
 
 This is how the Wizard looks like with extra fields
 

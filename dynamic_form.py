@@ -68,7 +68,6 @@ class CreateExtraMetadataForm(forms.Form):
         super().__init__(*args, **kwargs)
         factory = FormFieldFactory()
         self.initial_metadata = kwargs.get("initial")
-        print(self.initial_metadata)
 
         json_file_data = (
             json_data["fields"] if json_data else json_file_content["fields"]
@@ -79,7 +78,6 @@ class CreateExtraMetadataForm(forms.Form):
         json_file_data = json_file_data + api_only_fields
 
         # create form fields for fields that have a json definition
-        print("json-data is ", json_file_data)
         for form_item in json_file_data:
             form_input_copy = form_item.copy()
             field_choices = form_input_copy.get("choices", None)
@@ -96,7 +94,6 @@ class CreateExtraMetadataForm(forms.Form):
     def is_valid(self) -> bool:
         self.cleaned_data = {}
         self._errors = {}
-        print("check is here")
         for field_name, field in self.fields.items():
             if field_name in self.initial_metadata:
                 field_value = self.initial_metadata.get(field_name)
@@ -115,7 +112,6 @@ class CreateExtraMetadataForm(forms.Form):
                 except forms.ValidationError as error:
                     log.error(f"{field_name} failed")
                     self._errors[field_name] = error.messages
-        print("errors are ", self._errors)
         return not bool(self._errors)
 
     def add_api_data_to_json_fields(
@@ -158,7 +154,6 @@ class CreateExtraMetadataForm(forms.Form):
             return obj
 
     def save(self, resource, ExtraMetadata):
-        print(resource)
         md_to_update = self.cleaned_data
         resources = resource.metadata.all().delete()
         for k in md_to_update.keys():
