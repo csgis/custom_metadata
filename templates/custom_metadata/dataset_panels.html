@@ -1,0 +1,28 @@
+{% extends "layouts/panels.html" %}
+{% load i18n %}
+
+{% block extra_metadata_steps%}
+<li data-step="5" data-toggle="tab" href="#extra_metadata">
+  <a>{% trans "Extra Metadata" %}</a>
+ </li>
+{% endblock %}
+
+{% block extra_metadata_content %}
+<div id="extra_metadata" class="tab-pane fade">
+    <div class="panel-group"><div class="panel panel-default"><div class="panel-body">
+      <div>
+        <div style="padding: 15px; ">
+            {{ custom_metadata.as_p }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block dataset_abstract %}
+    {{ block.super }}<br>
+{% endblock %}
+
+{% block layer_extra_metadata %}
+{% endblock %}

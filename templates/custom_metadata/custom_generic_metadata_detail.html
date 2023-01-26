@@ -1,0 +1,12 @@
+{% extends "metadata_detail.html" %}
+
+{% block extra_metadata %}
+  {% if resource.extra_metadata %}
+    {% for extra in resource.extra_metadata %}
+      {% for key, value in extra.items %}
+          <dt>{{ key }}</dt>
+          <dd>{{ value }}</dd>
+      {% endfor %}
+    {% endfor %}
+  {% endif %}
+{% endblock extra_metadata %}
