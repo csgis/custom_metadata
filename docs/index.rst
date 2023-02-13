@@ -15,6 +15,7 @@ Index
    about
    installation
    configuration
+   translations
    development
    management
    contribution
