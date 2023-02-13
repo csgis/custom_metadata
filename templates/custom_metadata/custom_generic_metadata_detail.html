@@ -1,8 +1,8 @@
 {% extends "metadata_detail.html" %}
 
 {% block extra_metadata %}
-  {% if resource.extra_metadata %}
-    {% for extra in resource.extra_metadata %}
+  {% if custom_metadata %}
+    {% for extra in custom_metadata %}
       {% for key, value in extra.items %}
           <dt>{{ key }}</dt>
           <dd>{{ value }}</dd>

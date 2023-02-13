@@ -14,7 +14,12 @@ from geonode.layers.views import (
     dataset_metadata_detail,
 )
 
-from geonode.maps.views import map_metadata, map_metadata_detail, _resolve_map, _PERMISSION_MSG_VIEW
+from geonode.maps.views import (
+    map_metadata,
+    map_metadata_detail,
+    _resolve_map,
+    _PERMISSION_MSG_VIEW,
+)
 from geonode.documents.views import document_metadata, document_metadata_detail
 from geonode.geoapps.views import geoapp_metadata, geoapp_metadata_detail
 
@@ -31,8 +36,23 @@ def handle_generic_metadata_detail(view_func):
     def decorator_func(request, *args, **kwargs):
         # Currently there is only one generic template, this could be extended to  allow
         # templates per page
+
+        config_obj = get_config_obj(request)
+        resource = resolve_resource_type(request, config_obj, kwargs)
+
+        # Load metadata_records for contrib apps
+        custom_metadata = [
+            {extra.metadata.get("name", ""): extra.metadata.get("value", "")}
+            for extra in resource.metadata.all()
+        ]
+
+        print(resource)
+        print(custom_metadata)
+
         template = "custom_metadata/custom_generic_metadata_detail.html"
-        response = view_func(request, *args, template=template, **kwargs)
+        response = view_func(
+            request, *args, template=template, custom_metadata=custom_metadata, **kwargs
+        )
         return response
 
     return decorator_func
@@ -74,8 +94,8 @@ def handle_generic_metadata_form(view_func):
                     # Todo: Error reporting should be improved
                     return HttpResponse("There was an Eror updating the resource")
 
-            return response
-            # return HttpResponse("Resource updated")
+            # return response
+            return HttpResponse("Resource updated")
         elif request.method == "GET":
             # Populate the model data and add the extra metadata to the context
             form_custom_metadata = {}
@@ -122,9 +142,7 @@ metadata_dataset_detail_view_decorator = handle_generic_metadata_detail(
 
 # maps
 metadata_map_form_view_decorator = handle_generic_metadata_form(map_metadata)
-metadata_map_detail_view_decorator = handle_generic_metadata_detail(
-    map_metadata_detail
-)
+metadata_map_detail_view_decorator = handle_generic_metadata_detail(map_metadata_detail)
 
 # documents
 metadata_documents_form_view_decorator = handle_generic_metadata_form(document_metadata)

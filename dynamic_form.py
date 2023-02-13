@@ -8,8 +8,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
 from typing import Any, Dict, List, Tuple
 from .get_item_config import get_type_by_first_url_folder
+from .update_xml import custom_catalogue_post_save
 
 log = logging.getLogger("django")
+
 
 class FormFieldFactory:
     """
@@ -163,3 +165,4 @@ class CreateExtraMetadataForm(forms.Form):
                 resource=resource, metadata=json_metadata
             )
             resource.metadata.add(extra_meta)
+        custom_catalogue_post_save(resource)
