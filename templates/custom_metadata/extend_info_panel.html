@@ -1,0 +1,120 @@
+{% load translation_tags %}
+<script type="text/javascript">
+const translationMap = {% get_custom_metadata_translations %}
+</script>
+<script type="text/javascript">
+
+        function generateHTML(data) {
+          if (!data.length) return false;
+
+          data.sort((a, b) => {
+            if (a.name < b.name) return -1;
+            if (a.name > b.name) return 1;
+            return 0;
+          });
+
+          let userLang = '{{ LANGUAGE_CODE }}' || 'en-us';
+          userLang = userLang.split('-')[0];
+
+          return data.map(item => {
+
+            let itemName = item.name;
+            if (translationMap[userLang] && translationMap[userLang][item.name]) {
+              itemName = translationMap[userLang][item.name];
+            }
+
+            let value = item.value;
+            if (isUrl(value)) {
+              if (isImage(value)) {
+                value = `<img src="${value}" alt="${item.name}">`;
+              } else {
+                short_value = value.length > 40 ? value.substring(0, 40) + '...' : value;
+                value = `<a href="${value}" target="_blank">${short_value}</a>`;
+              }
+            } else if (isEmail(value)) {
+              value = `<a href="mailto:${value}">${value}</a>`;
+            }
+
+            return `
+              <div class="gn-details-info-row">
+                <div class="gn-details-info-label">
+                  <span>${itemName}</span>
+                </div>
+                <div class="gn-details-info-value">${value}</div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        function isUrl(value) {
+          return /^https?:\/\//.test(value);
+        }
+
+        function isImage(value) {
+          return /\.(jpeg|jpg|gif|png)$/.test(value);
+        }
+
+        function isEmail(value) {
+          return /^\S+@\S+\.\S+$/.test(value);
+        }
+
+
+        (function() {
+          var endpoints = [{
+            endpoint: "/api/v2/datasets/",
+            property: "dataset"
+          }, {
+            endpoint: "/api/v2/maps/",
+            property: "map"
+          }, {
+            endpoint: "/api/v2/documents/",
+            property: "document"
+          }, {
+            endpoint: "/api/v2/geoapps/",
+            property: "geoapp"
+          }];
+          var open = XMLHttpRequest.prototype.open;
+          XMLHttpRequest.prototype.open = function() {
+            var url = arguments[1];
+            this.addEventListener("readystatechange", function() {
+              if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                var endpoint = endpoints.find(e => url.includes(e.endpoint));
+                if (endpoint) {
+                  console.log("URL:", this.responseURL);
+                  var responseJSON = JSON.parse(this.responseText);
+                  window.extra_items = generateHTML(responseJSON[endpoint.property].metadata);
+                }
+              }
+            });
+            open.apply(this, arguments);
+          };
+        })();
+
+        function waitForElement(selector, callback) {
+          var intervalId = setInterval(function() {
+            var node = document.querySelector(selector);
+            if (node) {
+              clearInterval(intervalId);
+              callback(node);
+            }
+          }, 100);
+        }
+
+          waitForElement(".btn-info", function(node) {
+            node.addEventListener("click", function() {
+              waitForElement(".gn-details-info-fields", function(node) {
+                if (window.extra_items !== false) {
+                  node.insertAdjacentHTML("beforeend", window.extra_items);
+                }
+              });
+            });
+          });
+
+          waitForElement(".gn-details-info-fields", function(node) {
+            if (window.extra_items !== false) {
+              node.insertAdjacentHTML("beforeend", window.extra_items);
+            }
+          });
+
+console.log("custom_metadata template loaded");
+</script>
