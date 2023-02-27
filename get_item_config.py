@@ -1,4 +1,6 @@
 from typing import Callable
+import os
+from django.conf import settings
 from django.urls import resolve
 import re
 
@@ -27,7 +29,7 @@ class GetItemConfig:
     def is_map(cls) -> dict:
         resource_type_return_obj = {
             "type": "map",
-            "panels_template": "custom_metadata/map_panels.html",
+            "panels_template": get_panels_template_path("map_panels.html"),
         }
         return resource_type_return_obj
 
@@ -35,7 +37,7 @@ class GetItemConfig:
     def is_dataset(cls) -> dict:
         resource_type_return_obj = {
             "type": "dataset",
-            "panels_template": "custom_metadata/dataset_panels.html",
+            "panels_template": get_panels_template_path("dataset_panels.html"),
         }
         return resource_type_return_obj
 
@@ -43,7 +45,7 @@ class GetItemConfig:
     def is_document(cls) -> dict:
         resource_type_return_obj = {
             "type": "document",
-            "panels_template": "custom_metadata/document_panels.html",
+            "panels_template": get_panels_template_path("document_panels.html"),
         }
         return resource_type_return_obj
 
@@ -51,9 +53,19 @@ class GetItemConfig:
     def is_app(cls) -> dict:
         resource_type_return_obj = {
             "type": "app",
-            "panels_template": "custom_metadata/app_panels.html",
+            "panels_template": get_panels_template_path("app_panels.html"),
         }
         return resource_type_return_obj
+
+
+def get_panels_template_path(template_name: str) -> str:
+    custom_template_directory = getattr(settings, "CUSTOM_METADATA_TEMPLATE_DIRECTORY", None)
+    if custom_template_directory:
+        panels_template_path = os.path.join(custom_template_directory, template_name)
+    else:
+        panels_template_path = f"custom_metadata/{template_name}"
+    return panels_template_path
+
 
 def get_type_by_first_url_folder(request):
     """

@@ -31,6 +31,7 @@ class FormFieldFactory:
     }
     WIDGET_MAP: Dict[str, Any] = {
         "TextInput": forms.TextInput,
+        "Textarea": forms.Textarea,
         "Select": forms.Select,
         "CheckboxInput": forms.CheckboxInput,
         "TextArea": forms.Textarea,
