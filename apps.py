@@ -8,9 +8,10 @@ class CustomMetadataConfig(AppConfig):
 
     def ready(self):
         # inject templates
-        settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(self.path, "templates"))
         if hasattr(settings, 'CUSTOM_METADATA_TEMPLATE_DIRECTORY'):
             settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(settings.CUSTOM_METADATA_TEMPLATE_DIRECTORY))
+        else:
+            settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(self.path, "templates"))
 
         run_setup_hooks()
 
