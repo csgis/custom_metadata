@@ -1,5 +1,11 @@
 {% extends "metadata_detail.html" %}
 
+{% block header %}
+{% if 'preview' not in request.GET %}
+    {% include 'geonode-mapstore-client/snippets/header.html' %}
+{% endif %}
+{% endblock %}
+
 {% block extra_metadata %}
   {% if custom_metadata %}
     {% for extra in custom_metadata %}
@@ -10,3 +16,10 @@
     {% endfor %}
   {% endif %}
 {% endblock extra_metadata %}
+
+
+{% block footer %}
+{% if 'preview' not in request.GET %}
+    {% include 'geonode-mapstore-client/snippets/footer.html' %}
+{% endif %}
+{% endblock %}
