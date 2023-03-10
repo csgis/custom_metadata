@@ -46,9 +46,6 @@ def handle_generic_metadata_detail(view_func):
             for extra in resource.metadata.all()
         ]
 
-        print(resource)
-        print(custom_metadata)
-
         template = "custom_metadata/custom_generic_metadata_detail.html"
         response = view_func(
             request, *args, template=template, custom_metadata=custom_metadata, **kwargs
