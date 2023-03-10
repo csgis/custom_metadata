@@ -91,8 +91,8 @@ def handle_generic_metadata_form(view_func):
                     # Todo: Error reporting should be improved
                     return HttpResponse("There was an Eror updating the resource")
 
-            # return response
-            return HttpResponse("Resource updated")
+            return response
+            # return HttpResponse("Resource updated")
         elif request.method == "GET":
             # Populate the model data and add the extra metadata to the context
             form_custom_metadata = {}

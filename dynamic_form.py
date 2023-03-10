@@ -90,9 +90,11 @@ class CreateExtraMetadataForm(forms.Form):
                 ]
                 del form_input_copy["choices"]
             name = form_input_copy.get("name")
+
             self.fields[name] = factory.create_field(
                 choices=field_choices, **form_input_copy
             )
+
 
     def is_valid(self) -> bool:
         self.cleaned_data = {}
@@ -101,13 +103,13 @@ class CreateExtraMetadataForm(forms.Form):
             if field_name in self.initial_metadata:
                 field_value = self.initial_metadata.get(field_name)
                 if isinstance(field, forms.CharField):
-                    field = forms.CharField(max_length=255)
+                    field = forms.CharField(max_length=255, required=field.required)
                     field.widget = forms.TextInput()
                 elif isinstance(field, forms.DateField):
                     field = forms.DateField()
                     field.widget = forms.DateInput()
                 elif isinstance(field, forms.ChoiceField):
-                    field = forms.ChoiceField(choices=field.choices)
+                    field = forms.ChoiceField(choices=field.choices, required=field.required)
                     field.widget = forms.Select()
                 try:
                     self.cleaned_data[field_name] = field.clean(field_value)
@@ -115,7 +117,32 @@ class CreateExtraMetadataForm(forms.Form):
                 except forms.ValidationError as error:
                     log.error(f"{field_name} failed")
                     self._errors[field_name] = error.messages
-        return not bool(self._errors)
+
+        if self._errors:
+            error_messages = "\n".join([f"{field}: {', '.join(errors)}" for field, errors in self._errors.items()])
+            return error_messages
+        else:
+            return True
+
+
+    """
+    def is_valid(self) -> bool:
+        self.cleaned_data = {}
+        self._errors = {}
+        for field_name, field in self.fields.items():
+            try:
+                self.cleaned_data[field_name] = field.clean(self.data.get(field_name))
+                print(f"getting {field_name}")
+            except forms.ValidationError as error:
+                print(f"{field_name} failed")
+                self._errors[field_name] = error.messages
+
+        if self._errors:
+            error_messages = "\n".join([f"{field}: {', '.join(errors)}" for field, errors in self._errors.items()])
+            return error_messages
+        else:
+            return True
+    """
 
     def add_api_data_to_json_fields(
         self, json_file_data: List[Dict[str, Any]]
@@ -158,12 +185,13 @@ class CreateExtraMetadataForm(forms.Form):
 
     def save(self, resource, ExtraMetadata):
         md_to_update = self.cleaned_data
-        resources = resource.metadata.all().delete()
+        resource.metadata.all().delete()
         for k in md_to_update.keys():
             k = k.replace("gn__emd-", "")
             json_metadata = {"name": k, "value": self.json_serial(md_to_update[k])}
-            extra_meta = ExtraMetadata.objects.create(
-                resource=resource, metadata=json_metadata
-            )
-            resource.metadata.add(extra_meta)
+            if json_metadata["value"] is not False and json_metadata["value"] != "":
+                extra_meta = ExtraMetadata.objects.create(
+                    resource=resource, metadata=json_metadata
+                )
+                resource.metadata.add(extra_meta)
         custom_catalogue_post_save(resource)

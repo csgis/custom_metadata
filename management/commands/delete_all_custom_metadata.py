@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 from geonode.base.models import ResourceBase
-from custom_metadata.models import ExtraMetadata
+from geonode.base.models import ExtraMetadata
 
 class Command(BaseCommand):
     help = _('Delete all ManyToMany relations from geonode.models.ResourceBase')
